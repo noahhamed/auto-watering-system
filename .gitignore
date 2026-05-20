@@ -3,3 +3,7 @@ __pycache__/
 .pytest_cache/
 *.pyc
 .envwatering_events.log
+watering_events.log
+
+.env
+watering_events.log
