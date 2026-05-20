@@ -1,7 +1,8 @@
 from src.controller import decide_action
+from src.pump import water_plant
 
 
-fake_plants = {
+plants = {
     "Plant 1": {
         "moisture": 22,
         "seconds_since_last_watered": None,
@@ -23,7 +24,7 @@ fake_plants = {
 tank_has_water = True
 
 
-for plant_name, plant_data in fake_plants.items():
+for plant_name, plant_data in plants.items():
     result = decide_action(
         plant_name=plant_name,
         moisture_percent=plant_data["moisture"],
@@ -35,6 +36,7 @@ for plant_name, plant_data in fake_plants.items():
     print(result["message"])
 
     if result["should_water"]:
-        print(f"Watering {plant_name} for 5 seconds...")
+        pump_result = water_plant(plant_name, duration_seconds=5)
+        print(pump_result["message"])
 
     print()
