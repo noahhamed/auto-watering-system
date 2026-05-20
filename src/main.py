@@ -1,7 +1,7 @@
 from src.controller import decide_action
 from src.pump import water_plant
 from src.event_logger import log_event
-
+from src.discord_alerts import send_discord_alert
 
 fake_plants = {
     "Plant 1": {
@@ -32,6 +32,11 @@ for plant_name, plant_data in fake_plants.items():
         tank_has_water=tank_has_water,
         seconds_since_last_watered=plant_data["seconds_since_last_watered"],
     )
+    if result["reason"] == "tank_empty":
+        send_discord_alert(f"🚰 Tank needs refilling. {result['message']}")
+
+    elif result["reason"] == "invalid_reading":
+        send_discord_alert(f"⚠️ Sensor error. {result['message']}")
 
     print(f"{plant_name}: {plant_data['moisture']}% moisture -> {result['status']}")
     print(result["message"])
@@ -41,5 +46,6 @@ for plant_name, plant_data in fake_plants.items():
         pump_result = water_plant(plant_name, duration_seconds=5)
         print(pump_result["message"])
         log_event(pump_result["message"])
+        send_discord_alert(f"💧 {pump_result['message']}")
 
     print()

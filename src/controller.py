@@ -1,7 +1,7 @@
 from src.plant_logic import get_plant_status
 
 
-COOLDOWN_SECONDS = 6 * 60 * 60  # 6 hours
+COOLDOWN_SECONDS = 12 * 60 * 60  # 6 hours
 
 
 def decide_action(
