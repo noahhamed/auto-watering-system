@@ -1,8 +1,9 @@
 from src.controller import decide_action
 from src.pump import water_plant
+from src.event_logger import log_event
 
 
-plants = {
+fake_plants = {
     "Plant 1": {
         "moisture": 22,
         "seconds_since_last_watered": None,
@@ -24,7 +25,7 @@ plants = {
 tank_has_water = True
 
 
-for plant_name, plant_data in plants.items():
+for plant_name, plant_data in fake_plants.items():
     result = decide_action(
         plant_name=plant_name,
         moisture_percent=plant_data["moisture"],
@@ -34,9 +35,11 @@ for plant_name, plant_data in plants.items():
 
     print(f"{plant_name}: {plant_data['moisture']}% moisture -> {result['status']}")
     print(result["message"])
+    log_event(result["message"])
 
     if result["should_water"]:
         pump_result = water_plant(plant_name, duration_seconds=5)
         print(pump_result["message"])
+        log_event(pump_result["message"])
 
     print()
