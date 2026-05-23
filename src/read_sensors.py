@@ -20,4 +20,4 @@ while True:
         )
 
     print("-" * 60)
-    time.sleep(10)
+    time.sleep(6 * 60 * 60)
