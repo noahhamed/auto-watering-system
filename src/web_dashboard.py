@@ -1,9 +1,10 @@
 from flask import Flask, redirect, url_for
-from src.pump import water_plant, stop_all_pumps
 from src.soil_sensor import read_sensor
+from src.discord_alerts import send_discord_alert
 
 app = Flask(__name__)
 
+COMMAND_FILE = "manual_command.txt"
 SYSTEM_FILE = "system_enabled.txt"
 
 
@@ -18,6 +19,10 @@ def get_system_status():
 def set_system_status(status):
     with open(SYSTEM_FILE, "w") as file:
         file.write(status)
+
+def write_command(command):
+    with open(COMMAND_FILE, "w") as file:
+        file.write(command)
 
 
 @app.route("/")
@@ -129,29 +134,27 @@ def home():
 @app.route("/turn-on", methods=["POST"])
 def turn_on():
     set_system_status("ON")
+    send_discord_alert("🟢 Plant watering system turned ON. Automatic watering enabled.")
     return redirect(url_for("home"))
 
 
 @app.route("/turn-off", methods=["POST"])
 def turn_off():
     set_system_status("OFF")
-    stop_all_pumps()
+    write_command("STOP")
+    send_discord_alert("🔴 Plant watering system turned OFF. Automatic watering paused.")
     return redirect(url_for("home"))
 
 
 @app.route("/water/<int:pump_number>", methods=["POST"])
 def water(pump_number):
-    water_plant(
-        plant_name=f"Plant {pump_number}",
-        pump_number=pump_number,
-        duration_seconds=3,
-    )
+    write_command(f"WATER:{pump_number}")
     return redirect(url_for("home"))
 
 
 @app.route("/stop", methods=["POST"])
 def stop():
-    stop_all_pumps()
+    write_command("STOP")
     return redirect(url_for("home"))
 
 
