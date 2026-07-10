@@ -56,6 +56,67 @@ def water_plant(plant_name, pump_number=1, duration_seconds=3):
         }
 
 
+def water_plant_interruptible(
+    plant_name,
+    pump_number=1,
+    duration_seconds=3,
+    should_stop=None,
+):
+    if pump_number not in pumps:
+        return {
+            "success": False,
+            "stopped": False,
+            "message": f"Invalid pump number: {pump_number}."
+        }
+
+    if duration_seconds <= 0:
+        return {
+            "success": False,
+            "stopped": False,
+            "message": f"Invalid watering duration for {plant_name}."
+        }
+
+    try:
+        watering_led.on()
+        pumps[pump_number].on()
+
+        elapsed = 0
+        step = 0.2
+
+        while elapsed < duration_seconds:
+            if should_stop is not None and should_stop():
+                pumps[pump_number].off()
+                watering_led.off()
+
+                return {
+                    "success": False,
+                    "stopped": True,
+                    "message": f"Stopped watering {plant_name}."
+                }
+
+            sleep(step)
+            elapsed += step
+
+        pumps[pump_number].off()
+        watering_led.off()
+
+        return {
+            "success": True,
+            "stopped": False,
+            "message": f"Watered {plant_name} with Pump {pump_number} for {duration_seconds} seconds."
+        }
+
+    except Exception as error:
+        pumps[pump_number].off()
+        watering_led.off()
+
+        return {
+            "success": False,
+            "stopped": False,
+            "message": f"Pump error for {plant_name}: {error}"
+        }
+
+
 def stop_all_pumps():
     for pump in pumps.values():
         pump.off()
