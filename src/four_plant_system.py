@@ -12,34 +12,48 @@ PLANTS = [
         "name": "Plant 1",
         "sensor_channel": 0,
         "pump_number": 1,
-        "watering_seconds": 6,
+        "watering_seconds": 4,
     },
     {
         "name": "Plant 2",
         "sensor_channel": 1,
         "pump_number": 2,
-        "watering_seconds": 6,
+        "watering_seconds": 4,
     },
     {
         "name": "Plant 3",
         "sensor_channel": 2,
         "pump_number": 3,
-        "watering_seconds": 6,
+        "watering_seconds": 4,
     },
     {
         "name": "Plant 4",
         "sensor_channel": 3,
         "pump_number": 4,
-        "watering_seconds": 6,
+        "watering_seconds": 4,
     },
 ]
 
 TANK_HAS_WATER = True
-CHECK_INTERVAL_SECONDS = 10  # 6 hours
+CHECK_INTERVAL_SECONDS = 6 * 60 * 60  # 6 hours
+
+def is_system_enabled():
+    try:
+        with open("system_enabled.txt", "r") as file:
+            return file.read().strip().upper() == "ON"
+    except FileNotFoundError:
+        return True
 
 
 try:
     while True:
+         if not is_system_enabled():
+            print("System is OFF. Skipping automatic watering.")
+            log_event("System is OFF. Skipping automatic watering.")
+            stop_all_pumps()
+            time.sleep(CHECK_INTERVAL_SECONDS)
+            continue
+            
         print("Checking all plants...")
         log_event("Checking all plants...")
 
